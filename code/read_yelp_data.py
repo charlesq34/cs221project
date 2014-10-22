@@ -57,7 +57,7 @@ class YelpDataExtractor():
                     b['name'], tuple(categories)))
         return businessList
 
-    # Return a list of reviews, each is a string
+    # Return a list of reviews, each is a dict of review
     def getReviewTextByBusinessID(self, businessID):
         return self.reviews[businessID]
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         reviews = yelp.getReviewTextByBusinessID(b[0])
         if len(reviews) > 5:# more than 5 reviews
             cnt += 1
-            reviewDict1[b] = reviews[1:min(19,len(reviews)-1)]
+            reviewDict1[b] = [r['text'] for r in reviews[1:min(19,len(reviews)-1)]]
             print b, len(reviewDict1[b])
         if cnt >= targetCnt: break
     pickle.dump(reviewDict1, open('business1.dict', 'wb'))
@@ -115,7 +115,7 @@ if __name__ == "__main__":
         reviews = yelp.getReviewTextByBusinessID(b[0])
         if len(reviews) > 5:# more than 5 reviews
             cnt += 1
-            reviewDict2[b] = reviews[1:min(19,len(reviews)-1)]
+            reviewDict2[b] = [r['text'] for r in reviews[1:min(19,len(reviews)-1)]]
             print b, len(reviewDict2[b])
         if cnt >= targetCnt: break
     pickle.dump(reviewDict2, open('business2.dict', 'wb'))
