@@ -86,7 +86,7 @@ if __name__ == "__main__":
     #        print bID, bName
     
     cat1 = ['French', 'Restaurants']
-    cat2 = ['Auto Parts & Supplies']
+    cat2 = ['Chinese', 'Restaurants']
     business1 = yelp.getBusinessByCategory(cat1)
     business2 = yelp.getBusinessByCategory(cat2)
     print 'after get business...'
