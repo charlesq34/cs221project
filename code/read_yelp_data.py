@@ -103,7 +103,7 @@ if __name__ == "__main__":
     # Mapping from tuple (businessID, name, (categories)) to [reviews]
     reviewDict1 = {}
     cnt = 0
-    targetCnt = 20 # 10 shops
+    targetCnt = 100 # 10 shops
     for i in range(len(business1)):
         b = business1[i]
         print b
