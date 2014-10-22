@@ -4,6 +4,8 @@ import re
 import random
 import cPickle as pickle
 import os.path
+import nltk
+import string
 
 # Put yelp data set in ../data/
 # Yelp Dataset: https://www.yelp.com/dataset_challenge/dataset
@@ -61,6 +63,11 @@ class YelpDataExtractor():
     def getReviewTextByBusinessID(self, businessID):
         return self.reviews[businessID]
 
+# Input a text string, output a list of words from the text
+def text2words(text):
+    words = nltk.word_tokenize(text)
+    return [w for w in words if w not in string.punctuation]
+
 if __name__ == "__main__":
     reviewFile = '../data/yelp_academic_dataset_review.json'
     businessFile = '../data/yelp_academic_dataset_business.json'
@@ -95,14 +102,14 @@ if __name__ == "__main__":
     # Mapping from tuple (businessID, name, (categories)) to [reviews]
     reviewDict1 = {}
     cnt = 0
-    targetCnt = 10 # 10 shops
+    targetCnt = 20 # 10 shops
     for i in range(len(business1)):
         b = business1[i]
         print b
         reviews = yelp.getReviewTextByBusinessID(b[0])
         if len(reviews) > 5:# more than 5 reviews
             cnt += 1
-            reviewDict1[b] = [r['text'] for r in reviews[1:min(19,len(reviews)-1)]]
+            reviewDict1[b] = [text2words(r['text']) for r in reviews[0:min(19,len(reviews)-1)]]
             print b, len(reviewDict1[b])
         if cnt >= targetCnt: break
     pickle.dump(reviewDict1, open('business1.dict', 'wb'))
@@ -115,7 +122,7 @@ if __name__ == "__main__":
         reviews = yelp.getReviewTextByBusinessID(b[0])
         if len(reviews) > 5:# more than 5 reviews
             cnt += 1
-            reviewDict2[b] = [r['text'] for r in reviews[1:min(19,len(reviews)-1)]]
+            reviewDict2[b] = [text2words(r['text']) for r in reviews[0:min(19,len(reviews)-1)]]
             print b, len(reviewDict2[b])
         if cnt >= targetCnt: break
     pickle.dump(reviewDict2, open('business2.dict', 'wb'))
