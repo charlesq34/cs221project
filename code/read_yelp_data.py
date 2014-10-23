@@ -80,15 +80,13 @@ if __name__ == "__main__":
     yelp.loadAllBusiness()
     yelp.loadAllReviews()
     print 'loading finishes...'
-    
+
     #for bID, bName in businessList:
     #    if re.search(r'[Ff]rench', bName):
     #        print bID, bName
     
-    cat1 = ['French', 'Restaurants']
-    cat2 = ['Chinese', 'Restaurants']
-    business1 = yelp.getBusinessByCategory(cat1)
-    business2 = yelp.getBusinessByCategory(cat2)
+    cats= [['French', 'Restaurants'], ['Chinese', 'Restaurants'], ['Auto Parts & Supplies']]
+    busis = [yelp.getBusinessByCategory(c) for c in cats]
     print 'after get business...'
 
     # sampleSize = 20 # get 20 business for each cat
@@ -101,33 +99,23 @@ if __name__ == "__main__":
     
     
     # Mapping from tuple (businessID, name, (categories)) to [reviews]
-    reviewDict1 = {}
-    cnt = 0
-    targetCnt = 100 # 10 shops
-    for i in range(len(business1)):
-        b = business1[i]
-        print b
-        reviews = yelp.getReviewTextByBusinessID(b[0])
-        if len(reviews) > 5:# more than 5 reviews
-            cnt += 1
-            reviewDict1[b] = [text2words(r['text']) for r in reviews[0:min(19,len(reviews)-1)]]
-            print b, len(reviewDict1[b])
-        if cnt >= targetCnt: break
-    pickle.dump(reviewDict1, open('business1.dict', 'wb'))
-    
-    cnt = 0
-    reviewDict2 = {}
-    for i in range(len(business2)):
-        b = business2[i]
-        print b
-        reviews = yelp.getReviewTextByBusinessID(b[0])
-        if len(reviews) > 5:# more than 5 reviews
-            cnt += 1
-            reviewDict2[b] = [text2words(r['text']) for r in reviews[0:min(19,len(reviews)-1)]]
-            print b, len(reviewDict2[b])
-        if cnt >= targetCnt: break
-    pickle.dump(reviewDict2, open('business2.dict', 'wb'))
-    
+    targetCnt = 100 # 100 shops
+    lowReview = 5
+    upReview = 20
+    for k in range(len(busis)):
+        business = busis[k]
+        reviewDict = {}
+        cnt = 0
+        for i in range(len(business)):
+            b = business[i]
+            print b
+            reviews = yelp.getReviewTextByBusinessID(b[0])
+            if len(reviews) > lowReview:# more than 5 reviews
+                cnt += 1
+                reviewDict[b] = [text2words(r['text']) for r in reviews[0:min(upReview,len(reviews)-1)]]
+                print b, len(reviewDict[b])
+            if cnt >= targetCnt: break
+        pickle.dump(reviewDict, open('business'+str(k)+'.dict', 'wb'))
     
     #print len(reviewDict1)
     #test = pickle.load( open('business1.dict', 'rb') )
