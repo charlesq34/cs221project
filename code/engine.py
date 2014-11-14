@@ -70,18 +70,31 @@ def computeFeatureVec(data):
     sortedDict = sorted(d.items(), key=lambda t: t[1], reverse=True)
 #     print "TFIDF counter is ", sortedDict
 
-    featureVec = np.array([])
+    featureVec = []
+    words = []
     i = 0
     cnt = 0
+    foodVec = wordVec.get_vector('food')
     while(cnt < DIM):
         featureWord = sortedDict[i][0]
         i += 1
         if featureWord in wordVec.vocab:
             cnt += 1
-            print featureWord
+#             print featureWord
             vec = wordVec.get_vector(featureWord)
-            featureVec = np.append(featureVec, vec)
-    return featureVec
+            dist_with_food = np.sqrt(np.sum((vec - foodVec) ** 2))
+            featureVec.append((dist_with_food, vec))
+            words.append((dist_with_food, featureWord))
+
+    featureVec = sorted(featureVec)
+    words = sorted(words)
+    for word in words:
+        print word
+
+    returnVec = np.array([])
+    for x in featureVec:
+        returnVec = np.append(returnVec, x[1])
+    return returnVec
 
 
 # Training for category 1
@@ -93,7 +106,6 @@ testingSet1 = b1_list[training_size:size]
 testingSet1List = zip(*[iter(testingSet1)] * int(round((size - training_size) / TESTING_SEGMENTS)))
 print "size of test=%d" % len(testingSet1List)
 featureVec1 = computeFeatureVec(trainingSet1)
-print featureVec1.size
 
 # Training for category 2
 b2_list = b0.items()
@@ -104,8 +116,7 @@ testingSet2 = b2_list[training_size:size]
 testingSet2List = zip(*[iter(testingSet2)] * int(round((size - training_size) / TESTING_SEGMENTS)))
 print "size of test=%d" % len(testingSet2List)
 featureVec2 = computeFeatureVec(trainingSet2)
-print featureVec2.size
-print featureVec2
+# print featureVec2.size
 
 
 # Testing:
