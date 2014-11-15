@@ -12,9 +12,9 @@ class SignatureExtractor:
     # Collect statistics and train parameters from training data.
     # trainingData is a dict with key:value including both samples and labels.
     # TODO: specify trainingData format
-    def train(trainingData): raise NotImplementedError("Override me")
+    def train(self, trainingData): raise NotImplementedError("Override me")
 
     # Extract a signature from a sample data x, return the signature.
     # TODO: specify x and return value format
-    def extract(x): raise NotImplementedError("Override me")
+    def extract(self, x): raise NotImplementedError("Override me")
 

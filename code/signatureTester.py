@@ -1,5 +1,7 @@
-import baseline
+from baseline import *
 import cPickle as pickle
+from  word2vec import *
+import numpy as np
 
 # owner: rqi
 # This file tests our extractor by measuring its performace on
@@ -7,13 +9,13 @@ import cPickle as pickle
 
 ############################################
 # Read in training and test data..
+DIM = 20  # how many word to extract into vectors
+TRAINING_SET_RATIO = 0.6  # 40% hold out rate
+TESTING_SEGMENTS = 10
+
 b0 = pickle.load(open('business0.dict', 'rb'))  # French
 b1 = pickle.load(open('business1.dict', 'rb'))  # chinese
 b2 = pickle.load(open('business2.dict', 'rb'))  # auto
-
-FrenchData = {"shop1":[review.split() for review in r11], "shop2":[review.split() for review in r12]}
-AutoData = {"Auto1":[review.split() for review in r21], "Auto2":[review.split() for review in r22]}
-wordVec = load("vectors.bin", 'bin')  # this load is from word2vec package
 
 b1_list = b1.items()
 size = len(b1_list)
@@ -34,28 +36,24 @@ print "size of test=%d" % len(testingSet2List)
 
 ##########################################
 # Train the model
-trainingData = (trainingSet1, trainingSet2)
-baselineExtractor = baseline()
-baseline.train(trainingData)
+featureVec1 = computeFeatureVec(trainingSet1)
+featureVec2 = computeFeatureVec(trainingSet2)
+
+trainingData = 0
+baselineExtractor = Baseline()
+baselineExtractor.train(trainingData)
 
 
 ##########################################
 # Test the model
 for testing1 in testingSet1List:
-    ret = baseline.extract(testing1)
-    if ret == 1:
+    vec = baselineExtractor.extract(testing1)
+    dist1 = np.sqrt(np.sum((vec - featureVec1) ** 2))
+    dist2 = np.sqrt(np.sum((vec - featureVec2) ** 2))
+    if dist1 < dist2:
         print "this is a Category 1, correct"
     else:
         print "this is a Category 2, wrong"
-    
-
-for testing2 in testingSet2List:
-    ret = baseline.extract(testing2)
-    if ret == 1:
-        print "this is a Category 1, wrong"
-    else:
-        print "this is a Category 2, correct"
-
 
 #cost = 0.0
 #for d1 in testData:
@@ -65,4 +63,4 @@ for testing2 in testingSet2List:
 #        s2 = baseline.extractSignature(d2)
 #        cost += evalCategory(s1, s2)
 
-print cost
+#print cost
