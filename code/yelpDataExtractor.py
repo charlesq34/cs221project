@@ -17,38 +17,54 @@ class YelpDataExtractor():
     def __init__(self, businessFile, reviewFile):
         self.businessFile = businessFile
         self.reviewFile = reviewFile
-        self.businessTypes = set()
-        self.business = []
-        self.reviews = {}
+        self.businessCategoryDict = {} # cat -> list of bIDs
+        self.businessDict = {} # bID -> list of business
+        self.reviews = {} # bID -> list of reviews
 
     # Load a list of all business names and ID tuple
     # Note: this function also LOG business infos.
     def loadAllBusiness(self):
-        if False: #os.path.isfile('yelp_busi.dict'):
-            self.business = pickle.load( open('yelp_busi.dict','rb'))
-        else:
-            businessList = []
-            for line in open(self.businessFile):
-                b = json.loads(line)
-                businessList.append((b['business_id'], b['name']))
-                for cat in b['categories']:
-                    if cat not in self.businessTypes:
-                        self.businessTypes.add(cat)
-                self.business.append(b)
-            #pickle.dump(self.business, open('yelp_busi.dict','wb'))
+        for line in open(self.businessFile):
+            b = json.loads(line)
+            bID = b['business_id']
+
+            for cat in b['categories']:
+                if cat not in self.businessCategoryDict:
+                    self.businessCategoryDict[cat] = []
+                else:
+                    self.businessCategoryDict[cat].append(bID)
+
+            self.businessDict[bID] = b
 
     def loadAllReviews(self):
-        if False: #os.path.isfile('yelp_review.dict'):
-            self.reviews = pickle.load( open('yelp_review.dict','rb'))
+        for line in open(self.reviewFile):
+            r = json.loads(line)
+            bID = r['business_id']
+
+            if bID not in self.reviews:
+                self.reviews[bID] = [r]
+            else:
+                self.reviews[bID].append(r)
+
+    # Add all reviews related with a business to that business' dict.
+    # Note: len(self.reviews[bID]) may not be the same as b['review_count']
+    def addReviewsToBusiness(self):
+        for bID in self.businessDict:
+            b = self.businessDict[bID]
+            if bID in self.reviews:
+                b['reviews'] = self.reviews[bID]
+                b['review_count'] = len(self.reviews[bID])
+
+
+    def getBusinessIDsByCategory(self, cat):
+        if cat in self.businessCategoryDict:
+            return self.businessCategoryDict[cat]
         else:
-            for line in open(self.reviewFile):
-                r = json.loads(line)
-                bID = r['business_id'] 
-                if bID not in self.reviews:
-                    self.reviews[bID] = [r]
-                else:
-                    self.reviews[bID].append(r)
-            #pickle.dump(self.reviews, open('yelp_review.dict','wb'))
+            return null
+
+
+    def getBusinessByID(self, bID):
+        return self.businessDict[bID]
 
     # Return a list of business ID and businessName tuples
     # where business belong to specified category
@@ -65,62 +81,4 @@ class YelpDataExtractor():
     # Return a list of reviews, each is a dict of review
     def getReviewTextByBusinessID(self, businessID):
         return self.reviews[businessID]
-
-# Input a text string, output a list of words from the text
-def text2words(text):
-    words = nltk.word_tokenize(text)
-    words = [w.lower() for w in words if w not in string.punctuation]
-    return [w for w in words if w not in nltk.corpus.stopwords.words('english')]
-
-if __name__ == "__main__":
-    reviewFile = '../data/yelp_academic_dataset_review.json'
-    businessFile = '../data/yelp_academic_dataset_business.json'
-    yelp = YelpDataExtractor(businessFile, reviewFile)
-    
-    #businessID = 'vcNAWiLM4dR7D2nwwJ7nCA'
-    #reviews = yelp.getReviewsByBusinessID(businessID, 10)
-    
-    yelp.loadAllBusiness()
-    yelp.loadAllReviews()
-    print 'loading finishes...'
-
-    #for bID, bName in businessList:
-    #    if re.search(r'[Ff]rench', bName):
-    #        print bID, bName
-    
-    cats= [['French', 'Restaurants'], ['Chinese', 'Restaurants'], ['Auto Parts & Supplies']]
-    busis = [yelp.getBusinessByCategory(c) for c in cats]
-    print 'after get business...'
-
-    # sampleSize = 20 # get 20 business for each cat
-    # businessSample1 = random.sample(business1, sampleSize)
-    # businessSample2 = random.sample(business2, sampleSize)
-    # for k in range(20):
-    #     print businessSample1[k]
-    # for k in range(20):
-    #     print businessSample2[k]
-    
-    
-    # Mapping from tuple (businessID, name, (categories)) to [reviews]
-    targetCnt = 100 # 100 shops
-    lowReview = 5
-    upReview = 20
-    for k in range(len(busis)):
-        business = busis[k]
-        reviewDict = {}
-        cnt = 0
-        for i in range(len(business)):
-            b = business[i]
-            print b
-            reviews = yelp.getReviewTextByBusinessID(b[0])
-            if len(reviews) > lowReview:# more than 5 reviews
-                cnt += 1
-                reviewDict[b] = [text2words(r['text']) for r in reviews[0:min(upReview,len(reviews)-1)]]
-                print b, len(reviewDict[b])
-            if cnt >= targetCnt: break
-        pickle.dump(reviewDict, open('business'+str(k)+'.dict', 'wb'))
-    
-    #print len(reviewDict1)
-    #test = pickle.load( open('business1.dict', 'rb') )
-    #print len(test)
 
