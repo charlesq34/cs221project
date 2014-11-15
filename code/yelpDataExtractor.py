@@ -7,7 +7,10 @@ import os.path
 import nltk
 import string
 
-# Put yelp data set in ../data/
+
+# owner: rqi
+# This file defines a class to extract useful data from Yelp data set.
+# Please put yelp data set in ../data/
 # Yelp Dataset: https://www.yelp.com/dataset_challenge/dataset
 
 class YelpDataExtractor():
