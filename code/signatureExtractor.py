@@ -18,3 +18,6 @@ class SignatureExtractor:
     # TODO: specify x and return value format
     def extract(self, x): raise NotImplementedError("Override me")
 
+    # Compute distance of two signatures
+    def distance(self, s1, s2): raise NotImplementedError("Override me")
+
