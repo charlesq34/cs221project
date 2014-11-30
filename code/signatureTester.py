@@ -13,10 +13,11 @@ import numpy as np
 # TRAINING_SET_RATIO = 0.6  # 40% hold out rate
 # TESTING_SEGMENTS = 10
 
+'''
 b0 = pickle.load(open('business0.dict', 'rb'))  # French
 b1 = pickle.load(open('business1.dict', 'rb'))  # chinese
 b2 = pickle.load(open('business2.dict', 'rb'))  # auto
-
+'''
 # b1_list = b1.items()
 # size = len(b1_list)
 # training_size = int(TRAINING_SET_RATIO * round(size))
@@ -39,7 +40,9 @@ b2 = pickle.load(open('business2.dict', 'rb'))  # auto
 # featureVec1 = computeFeatureVec(trainingSet1)
 # featureVec2 = computeFeatureVec(trainingSet2)
 
-trainingData = pickle.load(open('tiny_train.dat', 'rb')) # business list
+
+
+trainingData = pickle.load(open('tiny_train.dat', 'rb'))  # business list
 baselineExtractor = Baseline()
 baselineExtractor.train(trainingData)
 
@@ -58,26 +61,44 @@ baselineExtractor.train(trainingData)
 
 # Evaluation value: smaller the better!
 def evaluate(b1, b2, dist):
-	b1Cats = b1['categories']
-	b2Cats = b2['categories']
-	sameCatCnt = 0
-	for c1 in b1Cats:
-		for c2 in b2Cats:
-			if c1 == c2:
-				sameCatCnt += 1
-	catSimilarity = 2 * sameCatCnt / float(len(b1Cats) + len(b2Cats)) # between 0~1
-
+    b1Cats = b1['categories']
+    b2Cats = b2['categories']
+    print "b1Cats=%s" % (b1Cats)
+    print "b2Cats=%s" % (b2Cats)
+    print "distance=%s" % (dist)
+    sameCatCnt = 0
+    for c1 in b1Cats:
+        for c2 in b2Cats:
+            if c1 == c2:
+                sameCatCnt += 1
+	catSimilarity = 2 * sameCatCnt / float(len(b1Cats) + len(b2Cats))  # between 0~1
 	return (catSimilarity - 0.5) * dist
 
+N = 100
+testingData = trainingData[1:N]
+cost_ave = 0.0
+cost_min = 0.0
+cost_max = 0.0
 
-testingData = trainingData
-cost = 0.0
+feature = {}
+i = 0
+for b in testingData:
+    i += 1
+    print "%d out of %d" % (i, len(testingData))
+    feature[b['business_id']] = baselineExtractor.extract(b)
+
 for b1 in testingData:
-   for b2 in testingData:
-       if b1 == b2: continue
-       s1 = baseline.extract(b1)
-       s2 = baseline.extract(b2)
-       dist = baselineExtractor.distance(s1, s2)
-       cost += evaluate(b1, b2, dist)
+    for b2 in testingData:
+        if b1 == b2: continue
+        s1 = feature[b1['business_id']]
+        s2 = feature[b2['business_id']]
+        dist_ave = baselineExtractor.distance(s1, s2, 'ave')
+        dist_min = baselineExtractor.distance(s1, s2, 'min')
+        dist_max = baselineExtractor.distance(s1, s2, 'max')
+        cost_ave += evaluate(b1, b2, dist_ave)
+        cost_min += evaluate(b1, b2, dist_min)
+        cost_max += evaluate(b1, b2, dist_max)
 
-#print cost
+print "cost using ave distance=%f" % (cost_ave / (N - 1) / (N - 1))
+print "cost using min distance=%f" % (cost_min / (N - 1) / (N - 1))
+print "cost using max distance=%f" % (cost_max / (N - 1) / (N - 1))
