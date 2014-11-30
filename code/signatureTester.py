@@ -2,6 +2,7 @@ from baseline import *
 import cPickle as pickle
 from  word2vec import *
 import numpy as np
+import engine
 
 # owner: rqi
 # This file tests our extractor by measuring its performace on
@@ -63,9 +64,9 @@ baselineExtractor.train(trainingData)
 def evaluate(b1, b2, dist):
     b1Cats = b1['categories']
     b2Cats = b2['categories']
-    print "b1Cats=%s" % (b1Cats)
-    print "b2Cats=%s" % (b2Cats)
-    print "distance=%s" % (dist)
+#     print "b1Cats=%s" % (b1Cats)
+#     print "b2Cats=%s" % (b2Cats)
+#     print "distance=%s" % (dist)
     sameCatCnt = 0
     for c1 in b1Cats:
         for c2 in b2Cats:
@@ -82,10 +83,51 @@ cost_max = 0.0
 
 feature = {}
 i = 0
+
+wordVec = load("vectorsstnn_review.bin", 'bin')
+print 'please input your query:'
+userinput = sys.stdin.readline()
+words = userinput.split()
+queryVec = []
+
+for word in words:
+    if word in wordVec.vocab:
+        vec = wordVec.get_vector(word)
+        queryVec.append(vec)
+
+
+minDist1 = float('inf')
+minDist2 = float('inf')
 for b in testingData:
     i += 1
     print "%d out of %d" % (i, len(testingData))
     feature[b['business_id']] = baselineExtractor.extract(b)
+    s1 = feature[b['business_id']]
+    dist_min = baselineExtractor.distance(s1, queryVec, 'min')
+    dist_ave = baselineExtractor.distance(s1, queryVec, 'ave')
+    print dist_min
+    print dist_ave
+    if dist_min < minDist1:
+        minDist1 = dist_min
+        bestMatch1 = b
+    if dist_ave < minDist2:
+        minDist2 = dist_ave
+        bestMatch2 = b
+
+print "min best match name = %s" % (bestMatch1['name'])
+baselineExtractor.extract(bestMatch1)
+print "best match categories = %s" % (bestMatch1['categories'])
+print "best match stars = %s" % (bestMatch1['stars'])
+
+
+print "ave best match name = %s" % (bestMatch2['name'])
+baselineExtractor.extract(bestMatch2)
+print "best match categories = %s" % (bestMatch2['categories'])
+print "best match stars = %s" % (bestMatch2['stars'])
+
+
+
+
 
 for b1 in testingData:
     for b2 in testingData:

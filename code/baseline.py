@@ -1,5 +1,4 @@
 from signatureExtractor import *
-from engine import computeFeatureVec
 from engine import computeFeatureVec_single_biz
 import util
 import numpy as np
