@@ -28,10 +28,9 @@ def computeFeatureVec_single_biz(reviewList):
     # TF
     totalCounter = collections.Counter(flatReview)
     # IDF
-    '''
     N = len(reviewList)
     for key in totalCounter:
-        if totalCounter[key] < 2 or len(key) < 4 or key in ['food', 'good', 'I', 'the', 'it']:
+        if totalCounter[key] < 2 or len(key) < 4 or key in ['food', 'good', 'I', 'the', 'it', 'service', 'food', 'staff', 'restaurant', 'atmosphere', 'people']:
             totalCounter[key] = 0
             continue
         cnt = 0
@@ -39,7 +38,6 @@ def computeFeatureVec_single_biz(reviewList):
             if key in review:
                 cnt += 1
         totalCounter[key] *= math.log(N / cnt)
-    '''
     # sort
     d = dict(totalCounter)
     sortedDict = sorted(d.items(), key=lambda t: t[1], reverse=True)
@@ -54,21 +52,25 @@ def computeFeatureVec_single_biz(reviewList):
     while(cnt < DIM):
         featureWord = sortedDict[i][0]
         i += 1
-        featureWord = str(featureWord)
-        if featureWord in wordVec.vocab:
+        try:
+            featureWord = str(featureWord)
+        except:
+            continue
+        blackList = ['food', 'good', 'I', 'the', 'it', 'service', 'food', 'staff', 'restaurant', 'atmosphere', 'people', 'great', 'large', 'small', 'tasty', 'drink']
+        if featureWord in wordVec.vocab and featureWord not in blackList:
             cnt += 1
-#             print featureWord
+#           print featureWord
             vec = wordVec.get_vector(featureWord)
             dist_with_food = np.sqrt(np.sum((vec - foodVec) ** 2))
             featureVec.append((dist_with_food, vec))
             words.append((dist_with_food, featureWord))
 
-#     featureVec = sorted(featureVec)
-#     words = sorted(words)
+#   featureVec = sorted(featureVec)
+    words = sorted(words)
 
     returnVec = []
     for i in range(DIM_vec) :
-#         print words[i]
+        print words[i]
         returnVec.append(featureVec[i][1])
     return returnVec
 
@@ -76,11 +78,7 @@ def computeFeatureVec_single_biz(reviewList):
 
 
 
-
-
-
-
-
+'''
 
 def computeFeatureVec(data):
     N = 0
@@ -148,7 +146,7 @@ def computeFeatureVec(data):
 
 
 
-
+'''
 
 
 
