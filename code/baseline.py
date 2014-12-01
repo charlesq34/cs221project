@@ -20,9 +20,19 @@ class Baseline(SignatureExtractor):
             return getMaxDistance(s1, s2)
         if op == 'ave':
             return getAveDistance(s1, s2)
+        if op == 'mean_vec':
+            return getMeanVecDistance(s1, s2)
 
-
-
+def getMeanVecDistance(vecList1, vecList2):
+    meanVec1 = vecList1[0]
+    meanVec2 = vecList2[0]
+    for i in range(len(vecList1)):
+        meanVec1 = np.add(meanVec1, vecList1[i])
+    meanVec1 = np.divide(meanVec1, len(vecList1))
+    for i in range(len(vecList2)):
+        meanVec2 = np.add(meanVec2, vecList2[i])
+    meanVec2 = np.divide(meanVec2, len(vecList2))
+    return np.sqrt(np.sum((meanVec1 - meanVec2) ** 2))
 
 def getMinDistance(vecList1, vecList2):
     minDis = float('inf')

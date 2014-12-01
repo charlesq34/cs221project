@@ -2,6 +2,7 @@ from baseline import *
 import cPickle as pickle
 from  word2vec import *
 import numpy as np
+import math, random
 import engine
 
 # owner: rqi
@@ -11,36 +12,42 @@ import engine
 ############################################
 # Read in training and test data...
 # Evaluation value: smaller the better!
-def evaluate(b1, b2, dist):
-    b1Cats = b1['categories']
-    b2Cats = b2['categories']
-#     print "b1Cats=%s" % (b1Cats)
-#     print "b2Cats=%s" % (b2Cats)
-#     print "distance=%s" % (dist)
-    sameCatCnt = 0
-    for c1 in b1Cats:
-        for c2 in b2Cats:
-            if c1 == c2:
-                sameCatCnt += 1
-    catSimilarity = 2 * sameCatCnt / float(len(b1Cats) + len(b2Cats))  # between 0~1
-    return (catSimilarity - 0.5) * dist
 
 
-
-
-##########################################
-# Train the model
-# featureVec1 = computeFeatureVec(trainingSet1)
-# featureVec2 = computeFeatureVec(trainingSet2)
 
 trainingData = pickle.load(open('tiny_train.dat', 'rb'))  # business list
 baselineExtractor = Baseline()
 baselineExtractor.train(trainingData)
 
+mean_sim = 0
+sim_cnt = 0
+dist_sum = 0
 
-##########################################
-# Test the model
+# Evaluation value: smaller the better
+def evaluate(b1, b2, dist):
+    global mean_sim
+    global sim_cnt
+    global dist_sum
+    b1Cats = b1['categories']
+    b2Cats = b2['categories']
+    sameCatCnt = 0
+    for c1 in b1Cats:
+        for c2 in b2Cats:
+            if c1 == c2:
+                sameCatCnt += 1
+	catSimilarity = sameCatCnt / float(len(b1Cats) + len(b2Cats) - sameCatCnt)  # (C1 \cap C2) / (C1 \cup C2) \in [0,1]
 
+    mean_sim += catSimilarity
+    sim_cnt += 1
+    dist_sum += dist
+    print catSimilarity, mean_sim / float(sim_cnt)
+    print "b1Cats=%s" % (b1Cats)
+    print "b2Cats=%s" % (b2Cats)
+    print "distance=%s, avg_dist=%s" % (dist, str(dist_sum / sim_cnt))
+
+    # similarity->0 we hope distance be large, similarity->1 we hope distance be small
+    # avg sim ~= 0.333 => sim > 0.33, dist be small; sim < 0.33, dist be large
+    return (catSimilarity - 0.333) * dist
 
 
 
@@ -107,9 +114,6 @@ while 1:
 
         findBestMatch(queryVec)
 
-
-
-
     if choice == '2\n':
         print 'please input the restaurant number you liked:'
         userinput = sys.stdin.readline()
@@ -139,9 +143,6 @@ while 1:
         print "cost using ave distance=%f" % (cost_ave / (N - 1) / (N - 1))
         print "cost using min distance=%f" % (cost_min / (N - 1) / (N - 1))
         print "cost using max distance=%f" % (cost_max / (N - 1) / (N - 1))
-
-
-
 
 
 
