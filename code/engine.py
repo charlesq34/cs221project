@@ -3,24 +3,12 @@ import cPickle as pickle
 from  word2vec import *
 import numpy as np
 
-# # DIM = 30 for b1 and b2: 90% correct
-# # DIM = 20 for b0 and b1: 70% correct
 DIM = 50  # how many word to extract into vectors
 DIM_vec = 10
-# TRAINING_SET_RATIO = 0.6  # 40% hold out rate
-# TESTING_SEGMENTS = 10
-#
-# b0 = pickle.load(open('business0.dict', 'rb'))  # French
-# b1 = pickle.load(open('business1.dict', 'rb'))  # chinese
-# b2 = pickle.load(open('business2.dict', 'rb'))  # auto
-#
+
 wordVec = load("vectors.bin", 'bin')  # this load is from word2vec package
 # wordVec = load("vectorsstnn_review.bin", 'bin')  # this load is from word2vec package
-#
-# # {'shop2': [['nice', 'food'], ['french', 'fries']], 'shop1': [['french', 'restaurant'], ['good', 'restaurant']]}
 
-
-# wordVec = load("vectors.bin", 'bin')  # this load is from word2vec package
 
 def computeFeatureVec_single_biz(reviewList):
     N = 0

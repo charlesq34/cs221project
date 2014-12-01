@@ -40,10 +40,10 @@ def evaluate(b1, b2, dist):
     mean_sim += catSimilarity
     sim_cnt += 1
     dist_sum += dist
-    print catSimilarity, mean_sim / float(sim_cnt)
-    print "b1Cats=%s" % (b1Cats)
-    print "b2Cats=%s" % (b2Cats)
-    print "distance=%s, avg_dist=%s" % (dist, str(dist_sum / sim_cnt))
+#     print catSimilarity, mean_sim / float(sim_cnt)
+#     print "b1Cats=%s" % (b1Cats)
+#     print "b2Cats=%s" % (b2Cats)
+#     print "distance=%s, avg_dist=%s" % (dist, str(dist_sum / sim_cnt))
 
     # similarity->0 we hope distance be large, similarity->1 we hope distance be small
     # avg sim ~= 0.333 => sim > 0.33, dist be small; sim < 0.33, dist be large
@@ -52,13 +52,15 @@ def evaluate(b1, b2, dist):
 
 
 N = 100
-testingData = trainingData[1:N]
+testingData = trainingData[0:N]
 cost_ave = 0.0
 cost_min = 0.0
 cost_max = 0.0
 feature = {}
 i = 0
-wordVec = load("vectorsstnn_review.bin", 'bin')
+# wordVec  = load("vectorsstnn_review.bin", 'bin')
+wordVec = load("vectors.bin", 'bin')  # this load is from word2vec package
+
 
 for b in testingData:
     i += 1
