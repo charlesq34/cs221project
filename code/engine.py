@@ -14,8 +14,8 @@ DIM_vec = 10
 # b1 = pickle.load(open('business1.dict', 'rb'))  # chinese
 # b2 = pickle.load(open('business2.dict', 'rb'))  # auto
 #
-# wordVec = load("vectors.bin", 'bin')  # this load is from word2vec package
-wordVec = load("vectorsstnn_review.bin", 'bin')  # this load is from word2vec package
+wordVec = load("vectors.bin", 'bin')  # this load is from word2vec package
+# wordVec = load("vectorsstnn_review.bin", 'bin')  # this load is from word2vec package
 #
 # # {'shop2': [['nice', 'food'], ['french', 'fries']], 'shop1': [['french', 'restaurant'], ['good', 'restaurant']]}
 
