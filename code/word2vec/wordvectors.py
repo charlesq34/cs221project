@@ -61,12 +61,32 @@ class WordVectors(object):
         return self.l2norm[idx]
 
     def wordCosDist(self, word1, word2):
+        """
+        Returns the cosine distance bewteen word1 and word2
+        """
         return np.dot(self[word1].T, self[word2].T)  
+
+    def wordFNormDist(self, word1, word2):
+        """
+        Returns the cosine distance bewteen word1 and word2
+        """
+        diff = self[word1].T - self[word2].T
+        return np.dot(diff, diff)  
 
     def listCosDist(self, list1, list2):
         s = sum([np.dot(self[word1].T, self[word2].T) \
                 for word1 in list1 for word2 in list2])
         return s / (len(list1) * len(list2))
+
+    def wordFNorm2Dist(self, word1, word2):
+        """
+        Returns the FNorm squared distance between word1 and word2
+        """
+        diff = self[word1].T - self[word2].T
+        return (diff * diff).sum(axis=0)
+
+    def isInVocab(self, word):
+        return 
 
     def cosine(self, word, n=10):
         """
@@ -85,6 +105,27 @@ class WordVectors(object):
         best = np.argsort(metrics)[::-1][1:n+1]
         best_metrics = metrics[best]
         return best, best_metrics
+
+    def wordsByCosine(self, word, n=10):
+        metrics = np.dot(self.l2norm, self[word].T)
+        best = np.argsort(metrics)[::-1][1:n+1]
+        best_metrics = metrics[best]
+        words = [self.vocab[idx] for idx in best]
+        lst = [(words[idx], best_metrics[idx]) for idx in range(n)]
+        return lst
+
+    def wordsByNorm(self, word, n=10):
+        diff = self.l2norm - self[word].T
+        metrics = (diff*diff).sum(axis=0)
+        #diff = [l2norm - self[word].T for l2norm in self.l2norm]
+        #metrics = [np.dot(diffi, diffi) for diffi in diff]
+        #diff = np.subtract(self.l2norm, self[word].T)
+        #metrics = np.dot(diff, diff)
+        best = np.argsort(metrics)[1:n+1]
+        best_metrics = metrics[best]
+        words = [self.vocab[idx] for idx in best]
+        lst = [(words[idx], best_metrics[idx]) for idx in range(n)]
+        return lst
 
     def analogy(self, pos, neg, n=10):
         """
